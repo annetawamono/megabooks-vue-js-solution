@@ -1,0 +1,38 @@
+type User {
+    _id: ID
+    name: String!
+    surname: String!
+    email: String!
+    password: String!
+}
+
+type Customer {
+    _id: ID
+    name: String!
+    surname: String!
+    email: String!
+    phone: String!
+    bookDescription: String!
+    bookPrice: Float,
+    purchaseDate: String,
+    isbn: String!
+}
+
+type Query {
+    User: User
+    Customers: [Customer]
+}
+
+type Mutation {
+    addCustomer(
+        name: String!
+        surname: String!
+        email: String!
+        phone: String!
+        bookDescription: String!
+        bookPrice: Float,
+        purchaseDate: String,
+        isbn: String!
+    ): Customer!
+    signUpUser(name: String!, surname: String!, email: String!, password: String!): User!
+}
