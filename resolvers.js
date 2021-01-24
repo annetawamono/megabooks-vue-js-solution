@@ -1,6 +1,21 @@
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const createToken = (user, secret, expiresIn) => {
+    return jwt.sign({ email: user.email }, secret, { expiresIn })
+}
+
 module.exports = {
     Query: {
-        User: () => null,
+        User: async (_, args, { User, currentUser }) => {
+            if (!currentUser) {
+                return null
+            }
+
+            const user = await User.findOne({ email: currentUser.email })
+
+            return user
+        },
         Customers: async (_, args, { Customer }) => {
             const customers = await Customer.find()
             return customers
@@ -20,12 +35,31 @@ module.exports = {
             }).save()
             return newCustomer
         },
+        signInUser: async (_, { email, password }, { User }) => {
+
+            if (!User) {
+                throw new Error("User empty")
+            }
+
+            const user = await User.findOne({ email: email });
+
+            if (!user) {
+                throw new Error('User not found')
+            }
+
+            const isValidPassword = await bcrypt.compare(password, user.password)
+            if (!isValidPassword) {
+                throw new Error('Invalid password')
+            }
+
+            return { token: createToken(user, process.env.SECRET, '1hr') }
+        },
         // (parent, args, context, info)
         signUpUser: async (_, { name, surname, email, password }, { User }) => {
             const user = await User.findOne({ email: email });
 
             if (user) {
-                throw new Error('User already exists');
+                throw new Error('User already exists: ' + user);
             }
             const newUser = await new User({
                 name,
@@ -33,7 +67,7 @@ module.exports = {
                 email,
                 password
             }).save()
-            return newUser
+            return { token: createToken(newUser, process.env.SECRET, '1hr') }
         }
     }
 }

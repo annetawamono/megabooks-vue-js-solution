@@ -18,6 +18,10 @@ type Customer {
     isbn: String!
 }
 
+type Token {
+    token: String!
+}
+
 type Query {
     User: User
     Customers: [Customer]
@@ -33,6 +37,7 @@ type Mutation {
         bookPrice: Float,
         purchaseDate: String,
         isbn: String!
-    ): Customer!
-    signUpUser(name: String!, surname: String!, email: String!, password: String!): User!
+    ): Customer!,
+    signInUser(email: String!, password: String!): Token
+    signUpUser(name: String!, surname: String!, email: String!, password: String!): Token
 }
