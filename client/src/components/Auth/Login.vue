@@ -1,5 +1,12 @@
 <template>
 	<v-container text-xs-center mt-5 pt-5>
+		<!-- Error Alert -->
+		<v-layout v-if="error" row wrap>
+			<v-flex xs12 sm4 offset-sm4>
+				<form-alert :message="error.message"></form-alert>
+			</v-flex>
+		</v-layout>
+
 		<!-- Sign in title -->
 		<v-layout row wrap mb-5>
 			<v-flex xs12 sm6 offset-sm4><h1>Login</h1></v-flex>
@@ -69,7 +76,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(["user"]),
+		...mapGetters(["user", "error"]),
 	},
 	watch: {
 		// keep track of when user (state) changes

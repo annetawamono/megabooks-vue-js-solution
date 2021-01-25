@@ -6,6 +6,10 @@ import vuetify from './plugins/vuetify';
 import '@babel/polyfill'
 import ApolloClient from 'apollo-boost';
 import VueApollo from 'vue-apollo'
+import FormAlert from './components/Shared/FormAlert'
+
+// Register global components
+Vue.component('form-alert', FormAlert)
 
 Vue.use(VueApollo)
 

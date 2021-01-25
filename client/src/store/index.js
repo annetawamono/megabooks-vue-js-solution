@@ -12,7 +12,8 @@ export default new Vuex.Store({
   state: {
     customers: [],
     user: null,
-    loading: false
+    loading: false,
+    error: null
   },
   mutations: {
     setCustomers: (state, payload) => {
@@ -23,7 +24,12 @@ export default new Vuex.Store({
     },
     setLoading: (state, payload) => {
       state.loading = payload
-    }
+    },
+    setError: (state, payload) => {
+      state.error = payload
+    },
+    clearUser: state => state.user = null,
+    clearError: state => state.error = null
   },
   actions: {
     getCurrentUser: ({ commit }) => {
@@ -54,7 +60,11 @@ export default new Vuex.Store({
         console.error(err)
       })
     },
-    signInUser: (_, payload) => {
+    signInUser: ({ commit }, payload) => {
+      commit('clearError')
+      // clear token to prevent error is token is malformed
+      localStorage.setItem('token', '')
+
       apolloClient.mutate({
         mutation: SIGNIN_USER,
         variables: payload
@@ -64,14 +74,24 @@ export default new Vuex.Store({
         // to make sure created method is run in main.js (getCurrentUser), reload page
         router.go()
       }).catch(err => {
+        commit('setError', err)
         console.error(err)
       })
+    },
+    signOutUser: async ({ commit }) => {
+      // clear user in state
+      commit('clearUser')
+      // remove token inn localStorage
+      localStorage.setItem('token', '')
+      // end session
+      await apolloClient.resetStore()
     }
   },
   getters: {
     customers: state => state.customers,
     loading: state => state.loading,
-    user: state => state.user
+    user: state => state.user,
+    error: state => state.error
   },
   modules: {
   }

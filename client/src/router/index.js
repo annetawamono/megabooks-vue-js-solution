@@ -5,6 +5,7 @@ import Dashboard from '../components/Auth/Dashboard.vue'
 import Register from '../components/Auth/Register.vue'
 import Login from '../components/Auth/Login.vue'
 
+import AuthGuard from '../AuthGuard.js'
 
 Vue.use(VueRouter)
 
@@ -17,7 +18,8 @@ const routes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Dashboard
+    component: Dashboard,
+    beforeEnter: AuthGuard
   },
   {
     path: '/register',

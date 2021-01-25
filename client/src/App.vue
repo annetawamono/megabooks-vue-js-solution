@@ -25,7 +25,7 @@
 			</router-link>
 
 			<router-link v-else to="/login">
-				<v-btn text> Logout </v-btn>
+				<v-btn text @click="handleSignOutUser"> Logout </v-btn>
 			</router-link>
 		</v-app-bar>
 
@@ -45,6 +45,11 @@ export default {
 	name: "App",
 	computed: {
 		...mapGetters(["user"]),
+	},
+	methods: {
+		handleSignOutUser() {
+			this.$store.dispatch("signOutUser");
+		},
 	},
 };
 </script>
