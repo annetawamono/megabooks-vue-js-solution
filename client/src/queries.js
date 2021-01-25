@@ -6,7 +6,13 @@ query {
   Customers {
     _id
     name
+    surname
     email
+    phone
+    bookDescription
+    bookPrice
+    purchaseDate
+    isbn
   }
 }
 `
