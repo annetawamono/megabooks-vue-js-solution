@@ -10,12 +10,22 @@
 
 			<v-spacer></v-spacer>
 
-			<router-link to="/register">
+			<v-app-bar-title v-if="user"
+				>{{ user.name }} {{ user.surname }}</v-app-bar-title
+			>
+
+			<v-spacer></v-spacer>
+
+			<router-link v-if="!user" to="/register">
 				<v-btn text> Register </v-btn>
 			</router-link>
 
-			<router-link to="/login">
+			<router-link v-if="!user" to="/login">
 				<v-btn text> Login </v-btn>
+			</router-link>
+
+			<router-link v-else to="/login">
+				<v-btn text> Logout </v-btn>
 			</router-link>
 		</v-app-bar>
 
@@ -29,15 +39,12 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
 	name: "App",
-	comupted: {
-		horizontalNavItems() {
-			return [
-				{ icon: "create", title: "Register", link: "/register" },
-				{ icon: "lock_open", title: "Login", link: "/register" },
-			];
-		},
+	computed: {
+		...mapGetters(["user"]),
 	},
 };
 </script>
