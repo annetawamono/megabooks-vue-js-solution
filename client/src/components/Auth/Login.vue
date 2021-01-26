@@ -16,11 +16,17 @@
 		<v-layout row wrap>
 			<v-flex xs12 sm6 offset-sm4>
 				<v-container>
-					<v-form @submit.prevent="handleSignInUser">
+					<v-form
+						:v-model="isFormValid"
+						lazy-validation
+						ref="form"
+						@submit.prevent="handleSignInUser"
+					>
 						<v-layout row>
 							<v-flex xs12 sm7>
 								<v-text-field
 									v-model="email"
+									:rules="emailRules"
 									outlined
 									label="Email"
 									type="email"
@@ -33,6 +39,7 @@
 							<v-flex xs12 sm7>
 								<v-text-field
 									v-model="password"
+									:rules="passwordRules"
 									outlined
 									label="Password"
 									:type="show1 ? 'text' : 'password'"
@@ -46,7 +53,13 @@
 						</v-layout>
 						<v-layout row>
 							<v-flex xs12 sm7>
-								<v-btn color="accent" type="submit" mb-5>Sign in</v-btn>
+								<v-btn
+									color="accent"
+									type="submit"
+									:disabled="!isFormValid || loading"
+									mb-5
+									>Sign in</v-btn
+								>
 								<v-container mt-5>
 									<p>
 										Don't have an account?
@@ -70,13 +83,25 @@ export default {
 	name: "Login",
 	data() {
 		return {
+			isFormValid: true,
 			show1: false,
 			email: "",
 			password: "",
+			emailRules: [
+				(email) => !!email || "Email is required",
+				(email) => {
+					let reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+					return reg.test(email) || "Email is not valid";
+				},
+			],
+			passwordRules: [
+				(password) => !!password || "Password is required",
+				(password) => password.length >= 8 || "Password must be greater than 8",
+			],
 		};
 	},
 	computed: {
-		...mapGetters(["user", "error"]),
+		...mapGetters(["user", "error", "loading"]),
 	},
 	watch: {
 		// keep track of when user (state) changes
@@ -86,10 +111,13 @@ export default {
 	},
 	methods: {
 		handleSignInUser() {
-			this.$store.dispatch("signInUser", {
-				email: this.email,
-				password: this.password,
-			});
+			// (ref attribute on form) checks to see if form is valid first
+			if (this.$refs.form.validate()) {
+				this.$store.dispatch("signInUser", {
+					email: this.email,
+					password: this.password,
+				});
+			}
 		},
 	},
 };

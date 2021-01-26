@@ -4,7 +4,7 @@ import router from '../router/index.js'
 
 import { defaultClient as apolloClient } from '../main.js'
 
-import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER } from '../queries.js'
+import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER, SIGNUP_USER } from '../queries.js'
 
 Vue.use(Vuex)
 
@@ -57,6 +57,24 @@ export default new Vuex.Store({
         commit('setLoading', false)
       }).catch(err => {
         commit('setLoading', false)
+        console.error(err)
+      })
+    },
+    signUpUser: ({ commit }, payload) => {
+      commit('clearError')
+      // clear token to prevent error is token is malformed
+      localStorage.setItem('token', '')
+
+      apolloClient.mutate({
+        mutation: SIGNUP_USER,
+        variables: payload
+      }).then(({ data }) => {
+        localStorage.setItem('token', data.signUpUser.token)
+
+        // to make sure created method is run in main.js (getCurrentUser), reload page
+        router.go()
+      }).catch(err => {
+        commit('setError', err)
         console.error(err)
       })
     },
