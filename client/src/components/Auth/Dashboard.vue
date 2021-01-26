@@ -22,7 +22,7 @@
 			</v-dialog>
 		</v-layout>
 
-		<v-layout mt-5>
+		<!-- <v-layout mt-5>
 			<v-flex xs12>
 				<v-card>
 					<v-card-title>
@@ -43,18 +43,17 @@
 					></v-data-table>
 				</v-card>
 			</v-flex>
-		</v-layout>
+		</v-layout> -->
 
-		<!-- <v-data-table
+		<v-data-table
 			:search="search"
-			:headers="headers"
-			:items="desserts"
+			:headers="headersCustomers"
+			:items="customers"
 			sort-by="calories"
 			class="elevation-1 mt-5"
-		> -->
-		<!-- <template v-slot:top>
+		>
+			<template v-slot:top>
 				<v-toolbar flat>
-					
 					<v-text-field
 						v-model="search"
 						append-icon="mdi-magnify"
@@ -63,8 +62,9 @@
 						hide-details
 					></v-text-field>
 					<v-spacer></v-spacer>
+
+					<!-- Add / Edit dialog -->
 					<v-dialog v-model="dialog" max-width="500px">
-						
 						<v-card>
 							<v-card-title>
 								<span class="headline">{{ formTitle }}</span>
@@ -75,32 +75,44 @@
 									<v-row>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
-												v-model="editedItem.name"
-												label="Dessert name"
+												v-model="editedCustomer.name"
+												label="Customer name"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
-												v-model="editedItem.calories"
-												label="Calories"
+												v-model="editedCustomer.surname"
+												label="Surname"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
-												v-model="editedItem.fat"
-												label="Fat (g)"
+												v-model="editedCustomer.phone"
+												label="Phone number"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
-												v-model="editedItem.carbs"
-												label="Carbs (g)"
+												v-model="editedCustomer.bookDescription"
+												label="Book Description"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
-												v-model="editedItem.protein"
-												label="Protein (g)"
+												v-model="editedCustomer.bookPrice"
+												label="Book Price"
+											></v-text-field>
+										</v-col>
+										<v-col cols="12" sm="6" md="4">
+											<v-text-field
+												v-model="editedCustomer.purchaseDate"
+												label="Purchase date"
+											></v-text-field>
+										</v-col>
+										<v-col cols="12" sm="6" md="4">
+											<v-text-field
+												v-model="editedCustomer.isbn"
+												label="ISBN"
 											></v-text-field>
 										</v-col>
 									</v-row>
@@ -136,14 +148,11 @@
 				</v-toolbar>
 			</template>
 			<template v-slot:item.actions="{ item }">
-				<v-icon small @click="newItem(item)"> mdi-plus </v-icon>
+				<v-icon small class="mr-2" @click="newItem(item)"> mdi-plus </v-icon>
 				<v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
 				<v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
 			</template>
-			<template v-slot:no-data>
-				<v-btn color="primary" @click="initialize"> Reset </v-btn>
-			</template>
-		</v-data-table> -->
+		</v-data-table>
 	</v-container>
 </template>
 
@@ -155,7 +164,6 @@ export default {
 	// execute when component is created
 	created() {
 		this.handleCustomers();
-		this.initialize();
 	},
 	data() {
 		return {
@@ -173,41 +181,34 @@ export default {
 			],
 			dialog: false,
 			dialogDelete: false,
-			headers: [
-				{
-					text: "Dessert (100g serving)",
-					align: "start",
-					sortable: false,
-					value: "name",
-				},
-				{ text: "Calories", value: "calories" },
-				{ text: "Fat (g)", value: "fat" },
-				{ text: "Carbs (g)", value: "carbs" },
-				{ text: "Protein (g)", value: "protein" },
-				{ text: "Actions", value: "actions", sortable: false },
-			],
 			desserts: [],
 			editedIndex: -1,
-			editedItem: {
+			editedCustomer: {
 				name: "",
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0,
+				surname: "",
+				email: "",
+				phone: "",
+				bookDescription: "",
+				bookPrice: 0,
+				purchaseDate: "",
+				isbn: "",
 			},
-			defaultItem: {
+			defaultCustomer: {
 				name: "",
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0,
+				surname: "",
+				email: "",
+				phone: "",
+				bookDescription: "",
+				bookPrice: 0,
+				purchaseDate: "",
+				isbn: "",
 			},
 		};
 	},
 	computed: {
 		...mapGetters(["loading", "customers"]),
 		formTitle() {
-			return this.editedIndex === -1 ? "New Item" : "Edit Item";
+			return this.editedIndex === -1 ? "New Customer" : "Edit Customer";
 		},
 	},
 	watch: {
@@ -223,94 +224,25 @@ export default {
 			// getter from vuex
 			this.$store.dispatch("getCustomers");
 		},
-		initialize() {
-			this.desserts = [
-				{
-					name: "Frozen Yogurt",
-					calories: 159,
-					fat: 6.0,
-					carbs: 24,
-					protein: 4.0,
-				},
-				{
-					name: "Ice cream sandwich",
-					calories: 237,
-					fat: 9.0,
-					carbs: 37,
-					protein: 4.3,
-				},
-				{
-					name: "Eclair",
-					calories: 262,
-					fat: 16.0,
-					carbs: 23,
-					protein: 6.0,
-				},
-				{
-					name: "Cupcake",
-					calories: 305,
-					fat: 3.7,
-					carbs: 67,
-					protein: 4.3,
-				},
-				{
-					name: "Gingerbread",
-					calories: 356,
-					fat: 16.0,
-					carbs: 49,
-					protein: 3.9,
-				},
-				{
-					name: "Jelly bean",
-					calories: 375,
-					fat: 0.0,
-					carbs: 94,
-					protein: 0.0,
-				},
-				{
-					name: "Lollipop",
-					calories: 392,
-					fat: 0.2,
-					carbs: 98,
-					protein: 0,
-				},
-				{
-					name: "Honeycomb",
-					calories: 408,
-					fat: 3.2,
-					carbs: 87,
-					protein: 6.5,
-				},
-				{
-					name: "Donut",
-					calories: 452,
-					fat: 25.0,
-					carbs: 51,
-					protein: 4.9,
-				},
-				{
-					name: "KitKat",
-					calories: 518,
-					fat: 26.0,
-					carbs: 65,
-					protein: 7,
-				},
-			];
+		handleAddCustomer() {
+			// form validation
+			// add customer action
+			this.$store.dispatch("addCustomer", this.editedCustomer);
 		},
 		newItem(item) {
 			this.editedIndex = -1;
-			this.editedItem = Object.assign({}, item);
+			this.editedCustomer = Object.assign({}, item);
 			this.dialog = true;
 		},
 		editItem(item) {
-			this.editedIndex = this.desserts.indexOf(item);
-			this.editedItem = Object.assign({}, item);
+			this.editedIndex = this.customers.indexOf(item);
+			this.editedCustomer = Object.assign({}, item);
 			this.dialog = true;
 		},
 
 		deleteItem(item) {
-			this.editedIndex = this.desserts.indexOf(item);
-			this.editedItem = Object.assign({}, item);
+			this.editedIndex = this.customers.indexOf(item);
+			this.editedCustomer = Object.assign({}, item);
 			this.dialogDelete = true;
 		},
 
@@ -322,7 +254,7 @@ export default {
 		close() {
 			this.dialog = false;
 			this.$nextTick(() => {
-				this.editedItem = Object.assign({}, this.defaultItem);
+				this.editedCustomer = Object.assign({}, this.defaultCustomer);
 				this.editedIndex = -1;
 			});
 		},
@@ -330,16 +262,18 @@ export default {
 		closeDelete() {
 			this.dialogDelete = false;
 			this.$nextTick(() => {
-				this.editedItem = Object.assign({}, this.defaultItem);
+				this.editedCustomer = Object.assign({}, this.defaultCustomer);
 				this.editedIndex = -1;
 			});
 		},
 
 		save() {
 			if (this.editedIndex > -1) {
-				Object.assign(this.desserts[this.editedIndex], this.editedItem);
+				// update customer
+				Object.assign(this.desserts[this.editedIndex], this.editedCustomer);
 			} else {
-				this.desserts.push(this.editedItem);
+				this.handleAddCustomer();
+				// this.desserts.push(this.editedCustomer);
 			}
 			this.close();
 		},

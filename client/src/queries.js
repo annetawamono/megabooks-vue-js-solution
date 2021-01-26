@@ -29,6 +29,39 @@ export const GET_CURRENT_USER = gql`
 
 /* Customer Mutations */
 
+export const ADD_CUSTOMER = gql`
+mutation(
+  $name: String!
+  $surname: String!
+  $email: String!
+  $phone: String!
+  $bookDescription: String!
+  $bookPrice: Float!
+  $purchaseDate: String!
+  $isbn: String!
+) {
+  addCustomer(
+    name: $name
+    surname: $surname
+    email: $email
+    phone: $phone
+    bookDescription: $bookDescription
+    bookPrice: $bookPrice
+    purchaseDate: $purchaseDate
+    isbn: $isbn
+  ) {
+    name
+    surname
+    email
+    phone
+    bookDescription
+    bookPrice
+    purchaseDate
+    isbn
+  }
+}
+`
+
 /* User Mutations */
 export const SIGNIN_USER = gql`
 mutation($email: String!, $password: String!) {

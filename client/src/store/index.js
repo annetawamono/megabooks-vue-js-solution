@@ -4,7 +4,7 @@ import router from '../router/index.js'
 
 import { defaultClient as apolloClient } from '../main.js'
 
-import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER, SIGNUP_USER } from '../queries.js'
+import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER, SIGNUP_USER, ADD_CUSTOMER } from '../queries.js'
 
 Vue.use(Vuex)
 
@@ -103,6 +103,36 @@ export default new Vuex.Store({
       localStorage.setItem('token', '')
       // end session
       await apolloClient.resetStore()
+    },
+    addCustomer: (_, payload) => {
+      apolloClient.mutate({
+        mutation: ADD_CUSTOMER,
+        variables: payload,
+        update: (cache, { data: { addCustomer } }) => {
+          // read the query you want to update
+          const data = cache.readQuery({ query: GET_CUSTOMERS })
+          // create updated data
+          addCustomer['_id'] = -1
+          data.Customers.push(addCustomer)
+          // write updated data back to query
+          cache.writeQuery({
+            query: GET_CUSTOMERS,
+            data
+          })
+        },
+        optimisticResponse: {
+          __typename: 'Mutation',
+          addCustomer: {
+            __typename: 'Customer',
+            _id: -1,
+            ...payload
+          }
+        }
+      }).then(({ data }) => {
+        console.log(data.addCustomer)
+      }).catch(err => {
+        console.error(err)
+      })
     }
   },
   getters: {
