@@ -93,7 +93,7 @@
 									hint="At least 8 characters"
 									counter
 									required
-									@click:append="show1 = !show1"
+									@click:append="show2 = !show2"
 								></v-text-field>
 							</v-flex>
 						</v-layout>

@@ -38,6 +38,17 @@ type Mutation {
         purchaseDate: String,
         isbn: String!
     ): Customer!,
+    updateCustomer(
+        _id: String!
+        name: String!
+        surname: String!
+        email: String!
+        phone: String!
+        bookDescription: String!
+        bookPrice: Float,
+        purchaseDate: String,
+        isbn: String!
+        ): Customer!,
     signInUser(email: String!, password: String!): Token
-    signUpUser(name: String!, surname: String!, email: String!, password: String!): Token
+    signUpUser(name: String!, surname: String!, email: String!, password: String!): Token,
 }

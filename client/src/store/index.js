@@ -4,7 +4,7 @@ import router from '../router/index.js'
 
 import { defaultClient as apolloClient } from '../main.js'
 
-import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER, SIGNUP_USER, ADD_CUSTOMER } from '../queries.js'
+import { GET_CURRENT_USER, GET_CUSTOMERS, SIGNIN_USER, SIGNUP_USER, ADD_CUSTOMER, UPDATE_CUSTOMER } from '../queries.js'
 
 Vue.use(Vuex)
 
@@ -103,6 +103,20 @@ export default new Vuex.Store({
       localStorage.setItem('token', '')
       // end session
       await apolloClient.resetStore()
+    },
+    updateCustomer: ({ commit, state }, payload) => {
+      apolloClient.mutate({
+        mutation: UPDATE_CUSTOMER,
+        variables: payload
+      }).then(({ data }) => {
+        // console.log('[state customer]', state.customers)
+        // console.log('[updated post]', data.updateCustomer)
+        const index = state.customers.findIndex(cust => cust._id === data.updateCustomer._id)
+        const customers = [...state.customers.slice(0, index), data.updateCustomer, ...state.customers.slice(index + 1)]
+        commit('setCustomers', customers)
+      }).catch(err => {
+        console.log(err)
+      })
     },
     addCustomer: (_, payload) => {
       apolloClient.mutate({

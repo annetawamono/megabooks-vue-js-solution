@@ -77,12 +77,14 @@
 											<v-text-field
 												v-model="editedCustomer.name"
 												label="Customer name"
+												:rules="nameRules"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
 											<v-text-field
 												v-model="editedCustomer.surname"
 												label="Surname"
+												:rules="nameRules"
 											></v-text-field>
 										</v-col>
 										<v-col cols="12" sm="6" md="4">
@@ -168,6 +170,26 @@ export default {
 	data() {
 		return {
 			search: "",
+			isFormValid: true,
+			nameRules: [
+				(name) => {
+					if (name) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "This field is required";
+				},
+				(name) => {
+					let reg = /[a-z|A-Z]+/;
+					if (reg.test(name)) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "This field contains invalid characters.";
+				},
+			],
 			headersCustomers: [
 				{ text: "Name", value: "name", align: "start" },
 				{ text: "Surname", value: "surname" },
@@ -226,8 +248,12 @@ export default {
 		},
 		handleAddCustomer() {
 			// form validation
-			// add customer action
 			this.$store.dispatch("addCustomer", this.editedCustomer);
+			// console.log("[editedCustomer]", this.editedCustomer);
+		},
+		handleUpdateCustomer() {
+			// form validation
+			this.$store.dispatch("updateCustomer", this.editedCustomer);
 		},
 		newItem(item) {
 			this.editedIndex = -1;
@@ -236,6 +262,9 @@ export default {
 		},
 		editItem(item) {
 			this.editedIndex = this.customers.indexOf(item);
+			// this.editedIndex = item._id;
+			// console.log("[item]", item);
+			// console.log("[editedIndex]", this.editedIndex);
 			this.editedCustomer = Object.assign({}, item);
 			this.dialog = true;
 		},
@@ -269,8 +298,8 @@ export default {
 
 		save() {
 			if (this.editedIndex > -1) {
-				// update customer
-				Object.assign(this.desserts[this.editedIndex], this.editedCustomer);
+				this.handleUpdateCustomer();
+				// Object.assign(this.desserts[this.editedIndex], this.editedCustomer);
 			} else {
 				this.handleAddCustomer();
 				// this.desserts.push(this.editedCustomer);

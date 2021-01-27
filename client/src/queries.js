@@ -28,7 +28,6 @@ export const GET_CURRENT_USER = gql`
 `
 
 /* Customer Mutations */
-
 export const ADD_CUSTOMER = gql`
 mutation(
   $name: String!
@@ -50,6 +49,7 @@ mutation(
     purchaseDate: $purchaseDate
     isbn: $isbn
   ) {
+    _id
     name
     surname
     email
@@ -60,6 +60,32 @@ mutation(
     isbn
   }
 }
+`
+
+export const UPDATE_CUSTOMER = gql`
+  mutation(
+        $_id: String!
+        $name: String!
+        $surname: String!
+        $email: String!
+        $phone: String!
+        $bookDescription: String!
+        $bookPrice: Float,
+        $purchaseDate: String,
+        $isbn: String!
+        ) {
+    updateCustomer(_id:$_id, name:$name, surname: $surname, email: $email, phone: $phone, bookDescription: $bookDescription, bookPrice: $bookPrice, purchaseDate: $purchaseDate, isbn: $isbn) {
+      _id
+    name
+    surname
+    email
+    phone
+    bookDescription
+    bookPrice
+    purchaseDate
+    isbn
+    }
+  }
 `
 
 /* User Mutations */

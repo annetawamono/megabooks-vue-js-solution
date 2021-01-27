@@ -35,6 +35,25 @@ module.exports = {
             }).save()
             return newCustomer
         },
+        updateCustomer: async (_, { _id, name, surname, email, phone, bookDescription, bookPrice, purchaseDate, isbn }, { Customer }) => {
+            const cust = await Customer.findOneAndUpdate(
+                { _id: _id },
+                {
+                    $set: {
+                        name,
+                        surname,
+                        email,
+                        phone,
+                        bookDescription,
+                        bookPrice,
+                        purchaseDate,
+                        isbn
+                    }
+                },
+                { new: true }
+            )
+            return cust
+        },
         signInUser: async (_, { email, password }, { User }) => {
 
             if (!User) {
