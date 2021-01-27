@@ -255,6 +255,10 @@ export default {
 			// form validation
 			this.$store.dispatch("updateCustomer", this.editedCustomer);
 		},
+		handleDeleteCustomer() {
+			// console.log("[editedCustomer._id]", this.editedCustomer._id);
+			this.$store.dispatch("deleteCustomer", this.editedCustomer);
+		},
 		newItem(item) {
 			this.editedIndex = -1;
 			this.editedCustomer = Object.assign({}, item);
@@ -276,7 +280,8 @@ export default {
 		},
 
 		deleteItemConfirm() {
-			this.desserts.splice(this.editedIndex, 1);
+			// this.desserts.splice(this.editedIndex, 1);
+			this.handleDeleteCustomer();
 			this.closeDelete();
 		},
 

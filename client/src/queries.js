@@ -88,6 +88,14 @@ export const UPDATE_CUSTOMER = gql`
   }
 `
 
+export const DELETE_CUSTOMER = gql`
+  mutation($_id: String!) {
+    deleteCustomer(_id:$_id) {
+      _id
+    }
+  }
+`
+
 /* User Mutations */
 export const SIGNIN_USER = gql`
 mutation($email: String!, $password: String!) {

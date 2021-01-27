@@ -54,6 +54,10 @@ module.exports = {
             )
             return cust
         },
+        deleteCustomer: async (_, { _id }, { Customer }) => {
+            const cust = await Customer.findOneAndRemove({ _id: _id })
+            return cust
+        },
         signInUser: async (_, { email, password }, { User }) => {
 
             if (!User) {
