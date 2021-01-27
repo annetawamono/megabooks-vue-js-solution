@@ -76,7 +76,6 @@
 </template>
 
 <script>
-// import { mdiEmail } from "@mdi/js";
 import { mapGetters } from "vuex";
 
 export default {

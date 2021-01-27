@@ -1,8 +1,27 @@
 <template>
 	<v-container>
 		<v-container>
-			<h1>Home</h1>
+			<v-layout mt-5>
+				<v-row>
+					<v-col
+						cols="12"
+						sm="6"
+						class="d-flex flex-column align-center justify-center"
+					>
+						<h1>Megabooks</h1>
+						<p>A top tier bookseller solution</p>
+						<v-btn color="accent" x-large @click="$router.push('/register')"
+							>Sign Up</v-btn
+						>
+					</v-col>
+					<v-col cols="12" sm="6">
+						<v-img src="../assets/undraw_book_lover_mkck.svg"></v-img>
+					</v-col>
+				</v-row>
+			</v-layout>
 		</v-container>
+
+		<!-- Loading spinner -->
 		<v-layout row>
 			<v-dialog v-model="loading" persistent fullscreen>
 				<v-container fill-height>
@@ -17,11 +36,6 @@
 				</v-container>
 			</v-dialog>
 		</v-layout>
-		<v-flex v-if="!loading">
-			<ul v-for="cust in customers" :key="cust._id">
-				<li>{{ cust.name }} {{ cust.email }}</li>
-			</ul>
-		</v-flex>
 	</v-container>
 </template>
 
@@ -46,3 +60,9 @@ export default {
 	},
 };
 </script>
+
+<style scoped>
+.title {
+	text-align: center;
+}
+</style>

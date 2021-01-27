@@ -140,7 +140,7 @@ export default {
 			nameRules: [
 				(name) => !!name || "This field is required",
 				(name) => {
-					let reg = /[a-z|A-Z]+/;
+					let reg = /^([A-Za-z])+$/;
 					return reg.test(name) || "This field contains invalid characters.";
 				},
 			],

@@ -2,7 +2,14 @@
 	<v-container mt-5>
 		<v-layout row>
 			<v-flex>
-				<h1>Dashboard</h1>
+				<h1>Customer Dashboard</h1>
+			</v-flex>
+		</v-layout>
+
+		<!-- Error Alert -->
+		<v-layout v-if="error" row wrap>
+			<v-flex xs12 sm4 offset-sm4>
+				<form-alert :message="error.message"></form-alert>
 			</v-flex>
 		</v-layout>
 
@@ -21,29 +28,6 @@
 				</v-container>
 			</v-dialog>
 		</v-layout>
-
-		<!-- <v-layout mt-5>
-			<v-flex xs12>
-				<v-card>
-					<v-card-title>
-						Customers
-						<v-spacer></v-spacer>
-						<v-text-field
-							v-model="search"
-							append-icon="mdi-magnify"
-							label="Search"
-							single-line
-							hide-details
-						></v-text-field>
-					</v-card-title>
-					<v-data-table
-						:headers="headersCustomers"
-						:items="customers"
-						:search="search"
-					></v-data-table>
-				</v-card>
-			</v-flex>
-		</v-layout> -->
 
 		<v-data-table
 			:search="search"
@@ -72,52 +56,72 @@
 
 							<v-card-text>
 								<v-container>
-									<v-row>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.name"
-												label="Customer name"
-												:rules="nameRules"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.surname"
-												label="Surname"
-												:rules="nameRules"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.phone"
-												label="Phone number"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.bookDescription"
-												label="Book Description"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.bookPrice"
-												label="Book Price"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.purchaseDate"
-												label="Purchase date"
-											></v-text-field>
-										</v-col>
-										<v-col cols="12" sm="6" md="4">
-											<v-text-field
-												v-model="editedCustomer.isbn"
-												label="ISBN"
-											></v-text-field>
-										</v-col>
-									</v-row>
+									<v-form
+										:v-model="isFormValid"
+										lazy-validation
+										ref="form"
+										@submit.prevent
+									>
+										<v-row>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.name"
+													label="Customer name"
+													:rules="nameRules"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.surname"
+													label="Surname"
+													:rules="nameRules"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.email"
+													label="Email"
+													:rules="emailRules"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.phone"
+													label="Phone number"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.bookDescription"
+													label="Book Description"
+													:disabled="editedIndex !== -1"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.bookPrice"
+													label="Book Price (R)"
+													:rules="currencyRules"
+													:disabled="editedIndex !== -1"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.purchaseDate"
+													label="Purchase date"
+													:rules="dateRules"
+													:disabled="editedIndex !== -1"
+												></v-text-field>
+											</v-col>
+											<v-col cols="12" sm="6" md="4">
+												<v-text-field
+													v-model="editedCustomer.isbn"
+													label="ISBN"
+													:disabled="editedIndex !== -1"
+												></v-text-field>
+											</v-col>
+										</v-row>
+									</v-form>
 								</v-container>
 							</v-card-text>
 
@@ -126,7 +130,14 @@
 								<v-btn color="blue darken-1" text @click="close">
 									Cancel
 								</v-btn>
-								<v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+								<v-btn
+									color="blue darken-1"
+									:disabled="!isFormValid"
+									text
+									@click="save"
+								>
+									Save
+								</v-btn>
 							</v-card-actions>
 						</v-card>
 					</v-dialog>
@@ -181,13 +192,57 @@ export default {
 					return "This field is required";
 				},
 				(name) => {
-					let reg = /[a-z|A-Z]+/;
+					let reg = /^([A-Za-z])+$/;
 					if (reg.test(name)) {
 						this.isFormValid = true;
 						return true;
 					}
 					this.isFormValid = false;
 					return "This field contains invalid characters.";
+				},
+			],
+			currencyRules: [
+				(curr) => {
+					if (curr) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "This field is required";
+				},
+				(curr) => {
+					let reg = /^([0-9]+)\.([0-9]{2})$/;
+					if (reg.test(curr)) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "Use input like 12.09";
+				},
+			],
+			dateRules: [
+				(date) => {
+					if (date) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "This field is required";
+				},
+				(date) => {
+					if (Date.parse(date)) {
+						this.isFormValid = true;
+						return true;
+					}
+					this.isFormValid = false;
+					return "Use input like YYYY-MM-DD";
+				},
+			],
+			emailRules: [
+				(email) => !!email || "Email is required",
+				(email) => {
+					let reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+					return reg.test(email) || "Email is not valid";
 				},
 			],
 			headersCustomers: [
@@ -203,7 +258,6 @@ export default {
 			],
 			dialog: false,
 			dialogDelete: false,
-			desserts: [],
 			editedIndex: -1,
 			editedCustomer: {
 				name: "",
@@ -228,7 +282,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(["loading", "customers"]),
+		...mapGetters(["loading", "customers", "error"]),
 		formTitle() {
 			return this.editedIndex === -1 ? "New Customer" : "Edit Customer";
 		},
@@ -247,16 +301,17 @@ export default {
 			this.$store.dispatch("getCustomers");
 		},
 		handleAddCustomer() {
-			// form validation
+			// if (this.$refs.form.validate()) {
 			this.$store.dispatch("addCustomer", this.editedCustomer);
-			// console.log("[editedCustomer]", this.editedCustomer);
+			// }
 		},
 		handleUpdateCustomer() {
-			// form validation
+			// if (this.$refs.form.validate()) {
+			console.log("[updateCustomer]");
 			this.$store.dispatch("updateCustomer", this.editedCustomer);
+			// }
 		},
 		handleDeleteCustomer() {
-			// console.log("[editedCustomer._id]", this.editedCustomer._id);
 			this.$store.dispatch("deleteCustomer", this.editedCustomer);
 		},
 		newItem(item) {
@@ -266,9 +321,6 @@ export default {
 		},
 		editItem(item) {
 			this.editedIndex = this.customers.indexOf(item);
-			// this.editedIndex = item._id;
-			// console.log("[item]", item);
-			// console.log("[editedIndex]", this.editedIndex);
 			this.editedCustomer = Object.assign({}, item);
 			this.dialog = true;
 		},
@@ -280,7 +332,6 @@ export default {
 		},
 
 		deleteItemConfirm() {
-			// this.desserts.splice(this.editedIndex, 1);
 			this.handleDeleteCustomer();
 			this.closeDelete();
 		},
@@ -304,10 +355,8 @@ export default {
 		save() {
 			if (this.editedIndex > -1) {
 				this.handleUpdateCustomer();
-				// Object.assign(this.desserts[this.editedIndex], this.editedCustomer);
 			} else {
 				this.handleAddCustomer();
-				// this.desserts.push(this.editedCustomer);
 			}
 			this.close();
 		},

@@ -41,7 +41,6 @@ export default new Vuex.Store({
 
         // Add user data to state
         commit('setUser', data.User)
-        console.log(data.User)
       }).catch(err => {
         commit('setLoading', false)
         console.error(err)
@@ -105,6 +104,7 @@ export default new Vuex.Store({
       await apolloClient.resetStore()
     },
     deleteCustomer: ({ commit, state }, { _id }) => {
+      commit('clearError')
       apolloClient.mutate({
         mutation: DELETE_CUSTOMER,
         variables: { _id: _id }
@@ -113,50 +113,54 @@ export default new Vuex.Store({
         const customers = [...state.customers.slice(0, index), ...state.customers.slice(index + 1)]
         commit('setCustomers', customers)
       }).catch(err => {
-        console.log(err)
+        commit('setError', err)
+        console.error(err)
       })
     },
     updateCustomer: ({ commit, state }, payload) => {
+      commit('clearError')
       apolloClient.mutate({
         mutation: UPDATE_CUSTOMER,
         variables: payload
       }).then(({ data }) => {
-        // console.log('[state customer]', state.customers)
-        // console.log('[updated post]', data.updateCustomer)
         const index = state.customers.findIndex(cust => cust._id === data.updateCustomer._id)
         const customers = [...state.customers.slice(0, index), data.updateCustomer, ...state.customers.slice(index + 1)]
         commit('setCustomers', customers)
       }).catch(err => {
-        console.log(err)
+        commit('setError', err)
+        console.error(err)
       })
     },
-    addCustomer: (_, payload) => {
+    addCustomer: ({ commit, state }, payload) => {
+      commit('clearError')
       apolloClient.mutate({
         mutation: ADD_CUSTOMER,
         variables: payload,
-        update: (cache, { data: { addCustomer } }) => {
-          // read the query you want to update
-          const data = cache.readQuery({ query: GET_CUSTOMERS })
-          // create updated data
-          addCustomer['_id'] = -1
-          data.Customers.push(addCustomer)
-          // write updated data back to query
-          cache.writeQuery({
-            query: GET_CUSTOMERS,
-            data
-          })
-        },
-        optimisticResponse: {
-          __typename: 'Mutation',
-          addCustomer: {
-            __typename: 'Customer',
-            _id: -1,
-            ...payload
-          }
-        }
+        // update: (cache, { data: { addCustomer } }) => {
+        //   // read the query you want to update
+        //   const data = cache.readQuery({ query: GET_CUSTOMERS })
+        //   // create updated data
+        //   // addCustomer['_id'] = -1
+        //   data.Customers.push(addCustomer)
+        //   // write updated data back to query
+        //   cache.writeQuery({
+        //     query: GET_CUSTOMERS,
+        //     data
+        //   })
+        // },
+        // optimisticResponse: {
+        //   __typename: 'Mutation',
+        //   addCustomer: {
+        //     __typename: 'Customer',
+        //     // _id: -1,
+        //     ...payload
+        //   }
+        // }
       }).then(({ data }) => {
-        console.log(data.addCustomer)
+        // console.log(data.addCustomer)
+        state.customers.push(data.addCustomer)
       }).catch(err => {
+        commit('setError', err)
         console.error(err)
       })
     }
