@@ -1,7 +1,7 @@
 # Megabooks VueJS
 
 ## Project details
-- Backend run with [Apollo GraphQL](https://apollo.vuejs.org/) server
+- Backend run with [Apollo GraphQL](https://apollo.vuejs.org/) server and [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/)
 - Frontend built with [Vue2](https://vuejs.org/v2/guide/)
 - [Vuetify](https://vuetifyjs.com/) for UI
 - State management with [vuex](https://vuex.vuejs.org/)
